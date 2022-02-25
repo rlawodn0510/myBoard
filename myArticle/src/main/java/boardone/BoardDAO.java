@@ -93,51 +93,39 @@ public class BoardDAO {
 
 	// 첫번째 전체 글의 개수를 가져올 메서드
 	public int getArticleCount() {
-		Connection con = null;
-		PreparedStatement ps = null;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		int x = 0;
 		try {
-			con = ConnUtil.getConnection();
-			ps = con.prepareStatement("select count(*) from board");
-			rs = ps.executeQuery();
+			conn = ConnUtil.getConnection();
+			pstmt = conn.prepareStatement("select count(*) from board");
+			rs = pstmt.executeQuery();
 			if (rs.next()) {
 				x = rs.getInt(1);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (rs != null)
-				try {
-					rs.close();
-				} catch (SQLException e) {
-				}
-			if (ps != null)
-				try {
-					ps.close();
-				} catch (SQLException e) {
-				}
-			if (con != null)
-				try {
-					con.close();
-				} catch (SQLException e) {
-				}
+			if (rs != null)try {rs.close();} catch (SQLException e) {}
+			if (pstmt != null)try {pstmt.close();} catch (SQLException e) {}
+			if (conn != null)try {conn.close();} catch (SQLException e) {}	
 		}
 		return x;
 	}
 
 	// board table에서 데이터를 가져올 메소드
 	public List<BoardVO> getArticles(/* 수정<1> */) {
-		Connection con = null;
-		PreparedStatement ps = null;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		List<BoardVO> articleList = null;
 
 		try {
-			con = ConnUtil.getConnection();
+			conn = ConnUtil.getConnection();
 			/* <수정2> */
-			ps = con.prepareStatement("select * from board order by num desc"); // 수정 <3>
-			rs = ps.executeQuery();
+			pstmt = conn.prepareStatement("select * from board order by num desc"); // 수정 <3>
+			rs = pstmt.executeQuery();
 			if (rs.next()) {
 				articleList = new ArrayList<BoardVO>();// 수정 <4>
 				do {
@@ -160,38 +148,26 @@ public class BoardDAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (rs != null)
-				try {
-					rs.close();
-				} catch (SQLException e) {
-				}
-			if (ps != null)
-				try {
-					ps.close();
-				} catch (SQLException e) {
-				}
-			if (con != null)
-				try {
-					con.close();
-				} catch (SQLException e) {
-				}
+			if (rs != null)try {rs.close();} catch (SQLException e) {}
+			if (pstmt != null)try {pstmt.close();} catch (SQLException e) {}
+			if (conn != null)try {conn.close();} catch (SQLException e) {}	
 		}
 		return articleList;
 	}
 
 	public BoardVO getArticle(int num) {
-		Connection con = null;
-		PreparedStatement ps = null;
+		Connection conn = null;
+		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		BoardVO article = null;
 		try {
-			con = ConnUtil.getConnection();
-			ps = con.prepareStatement("update board set readcount = readcount+1 where num=?");
-			ps.setInt(1, num);
-			ps.executeUpdate();
-			ps = con.prepareStatement("select * from board where num=?");
-			ps.setInt(1, num);
-			rs = ps.executeQuery();
+			conn = ConnUtil.getConnection();
+			pstmt = conn.prepareStatement("update board set readcount = readcount+1 where num=?");
+			pstmt.setInt(1, num);
+			pstmt.executeUpdate();
+			pstmt = conn.prepareStatement("select * from board where num=?");
+			pstmt.setInt(1, num);
+			rs = pstmt.executeQuery();
 			if (rs.next()) {
 				article = new BoardVO();
 				article.setNum(rs.getInt("num"));
@@ -211,23 +187,50 @@ public class BoardDAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (rs != null)
-				try {
-					rs.close();
-				} catch (SQLException e) {
-				}
-			if (ps != null)
-				try {
-					ps.close();
-				} catch (SQLException e) {
-				}
-			if (con != null)
-				try {
-					con.close();
-				} catch (SQLException e) {
-				}
+			if (rs != null)try {rs.close();} catch (SQLException e) {}
+			if (pstmt != null)try {pstmt.close();} catch (SQLException e) {}
+			if (conn != null)try {conn.close();} catch (SQLException e) {}	
 		}
 		return article;
+	}
+	
+	public BoardVO updateGetArticle(int num) {
+		
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		BoardVO article = null;
+		
+		try {
+			conn = ConnUtil.getConnection();
+			pstmt = conn.prepareStatement("select * from board where num = ?");
+			pstmt.setInt(1, num);
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				article =new BoardVO();
+				article.setNum(rs.getInt("num"));
+				article.setWriter(rs.getString("writer"));
+				article.setEmail(rs.getString("email"));
+				article.setSubject(rs.getString("subject"));
+				article.setPass(rs.getString("pass"));
+				article.setRegdate(rs.getTimestamp("regdate"));
+				article.setReadcount(rs.getInt("readcount"));
+				article.setRef(rs.getInt("ref"));
+				article.setStep(rs.getInt("step"));
+				article.setDepth(rs.getInt("depth"));
+				article.setContent(rs.getString("content"));
+				article.setIp(rs.getString("ip"));
+			}
+			
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			if (rs != null)try {rs.close();} catch (SQLException e) {}
+			if (pstmt != null)try {pstmt.close();} catch (SQLException e) {}
+			if (conn != null)try {conn.close();} catch (SQLException e) {}	
+		}
+		return article;
+		
 	}
 
 }
